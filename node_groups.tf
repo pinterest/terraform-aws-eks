@@ -443,8 +443,9 @@ module "self_managed_node_group" {
   cluster_auth_base64      = try(time_sleep.this[0].triggers["cluster_certificate_authority_data"], "")
   pre_bootstrap_user_data  = try(each.value.pre_bootstrap_user_data, var.self_managed_node_group_defaults.pre_bootstrap_user_data, "")
   post_bootstrap_user_data = try(each.value.post_bootstrap_user_data, var.self_managed_node_group_defaults.post_bootstrap_user_data, "")
-  bootstrap_extra_args     = try(each.value.bootstrap_extra_args, var.self_managed_node_group_defaults.bootstrap_extra_args, "")
   user_data_template_path  = try(each.value.user_data_template_path, var.self_managed_node_group_defaults.user_data_template_path, "")
+  bootstrap_extra_args     = try(each.value.bootstrap_extra_args, var.self_managed_node_group_defaults.bootstrap_extra_args, "")
+  kubelet_extra_args       = try(each.value.kubelet_extra_args, var.self_managed_node_group_defaults.kubelet_extra_args, "")
 
   # Launch Template
   create_launch_template                 = try(each.value.create_launch_template, var.self_managed_node_group_defaults.create_launch_template, true)
@@ -506,4 +507,6 @@ module "self_managed_node_group" {
   cluster_primary_security_group_id = try(each.value.attach_cluster_primary_security_group, var.self_managed_node_group_defaults.attach_cluster_primary_security_group, false) ? aws_eks_cluster.this[0].vpc_config[0].cluster_security_group_id : null
 
   tags = merge(var.tags, try(each.value.tags, var.self_managed_node_group_defaults.tags, {}))
+
+  labels = try(each.value.labels, var.self_managed_node_group_defaults.labels, null)
 }
