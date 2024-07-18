@@ -11,14 +11,17 @@ locals {
       cluster_auth_base64 = var.cluster_auth_base64
       # Optional
       cluster_service_ipv4_cidr = var.cluster_service_ipv4_cidr != null ? var.cluster_service_ipv4_cidr : ""
+      cluster_service_ipv6_cidr = var.cluster_service_ipv6_cidr != null ? var.cluster_service_ipv6_cidr : ""
       bootstrap_extra_args      = var.bootstrap_extra_args
+      kubelet_extra_args        = var.kubelet_extra_args
+      format_mount_nvme_disk    = var.format_mount_nvme_disk
       pre_bootstrap_user_data   = var.pre_bootstrap_user_data
       post_bootstrap_user_data  = var.post_bootstrap_user_data
     }
   )) : ""
   platform = {
     bottlerocket = {
-      user_data = var.create && var.platform == "bottlerocket" && (var.enable_bootstrap_user_data || var.user_data_template_path != "" || var.bootstrap_extra_args != "") ? base64encode(templatefile(
+      user_data = var.create && var.platform == "bottlerocket" && (var.enable_bootstrap_user_data || var.user_data_template_path != "" || var.bootstrap_extra_args != "" || var.kubelet_extra_args != "") ? base64encode(templatefile(
         coalesce(var.user_data_template_path, "${path.module}/../../templates/bottlerocket_user_data.tpl"),
         {
           # https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html#launch-template-custom-ami
@@ -29,7 +32,9 @@ locals {
           cluster_auth_base64 = var.cluster_auth_base64
           # Optional - is appended if using EKS managed node group without custom AMI
           # cluster_service_ipv4_cidr = var.cluster_service_ipv4_cidr # Bottlerocket pulls this automatically https://github.com/bottlerocket-os/bottlerocket/issues/1866
-          bootstrap_extra_args = var.bootstrap_extra_args
+          bootstrap_extra_args   = var.bootstrap_extra_args
+          kubelet_extra_args     = var.kubelet_extra_args
+          format_mount_nvme_disk = var.format_mount_nvme_disk
         }
       )) : ""
     }
@@ -48,6 +53,7 @@ locals {
           # Optional - is appended if using EKS managed node group without custom AMI
           # cluster_service_ipv4_cidr = var.cluster_service_ipv4_cidr # Not supported yet: https://github.com/awslabs/amazon-eks-ami/issues/805
           bootstrap_extra_args     = var.bootstrap_extra_args
+          kubelet_extra_args       = var.kubelet_extra_args
           pre_bootstrap_user_data  = var.pre_bootstrap_user_data
           post_bootstrap_user_data = var.post_bootstrap_user_data
         }
