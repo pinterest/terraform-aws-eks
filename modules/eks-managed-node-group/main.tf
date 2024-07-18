@@ -16,11 +16,14 @@ module "user_data" {
   cluster_auth_base64 = var.cluster_auth_base64
 
   cluster_service_ipv4_cidr = var.cluster_service_ipv4_cidr
+  cluster_service_ipv6_cidr = var.cluster_service_ipv6_cidr
 
   enable_bootstrap_user_data = var.enable_bootstrap_user_data
   pre_bootstrap_user_data    = var.pre_bootstrap_user_data
   post_bootstrap_user_data   = var.post_bootstrap_user_data
   bootstrap_extra_args       = var.bootstrap_extra_args
+  kubelet_extra_args         = var.kubelet_extra_args
+  format_mount_nvme_disk     = var.format_mount_nvme_disk
   user_data_template_path    = var.user_data_template_path
 }
 
@@ -379,9 +382,6 @@ resource "aws_eks_node_group" "this" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [
-      scaling_config[0].desired_size,
-    ]
   }
 
   tags = merge(
