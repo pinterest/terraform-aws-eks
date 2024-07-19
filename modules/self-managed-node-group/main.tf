@@ -17,6 +17,10 @@ data "aws_ami" "eks_default" {
 # User Data
 ################################################################################
 
+locals {
+  node_labels_string = join(",", [for k, v in var.labels : "${k}=${v}"])
+}
+
 module "user_data" {
   source = "../_user_data"
 
@@ -32,6 +36,7 @@ module "user_data" {
   pre_bootstrap_user_data    = var.pre_bootstrap_user_data
   post_bootstrap_user_data   = var.post_bootstrap_user_data
   bootstrap_extra_args       = var.bootstrap_extra_args
+  kubelet_extra_args         = "${var.kubelet_extra_args} --node-labels=${local.node_labels_string}"
   user_data_template_path    = var.user_data_template_path
 }
 
@@ -145,7 +150,8 @@ resource "aws_launch_template" "this" {
   }
 
   iam_instance_profile {
-    arn = var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn
+    arn  = var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn
+    name = (var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn) == null ? var.iam_role_name : null
   }
 
   image_id                             = coalesce(var.ami_id, data.aws_ami.eks_default[0].image_id)

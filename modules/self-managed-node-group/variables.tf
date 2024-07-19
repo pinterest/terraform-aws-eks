@@ -56,6 +56,12 @@ variable "bootstrap_extra_args" {
   default     = ""
 }
 
+variable "kubelet_extra_args" {
+  description = "Extra arguments to pass to kubelet, like \"--register-with-taints=dedicated=ci-cd:NoSchedule --node-labels=purpose=ci-worker\""
+  type        = string
+  default     = ""
+}
+
 variable "user_data_template_path" {
   description = "Path to a local, custom user data template file to use when rendering user data"
   type        = string
@@ -231,6 +237,12 @@ variable "ami_id" {
 variable "cluster_version" {
   description = "Kubernetes cluster version - used to lookup default AMI ID if one is not provided"
   type        = string
+  default     = null
+}
+
+variable "labels" {
+  description = "Key-value map of Kubernetes labels. Only labels that are applied with the EKS API are managed by this argument. Other Kubernetes labels applied to the EKS Node Group will not be managed"
+  type        = map(string)
   default     = null
 }
 

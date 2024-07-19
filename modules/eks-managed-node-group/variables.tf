@@ -68,6 +68,18 @@ variable "bootstrap_extra_args" {
   default     = ""
 }
 
+variable "kubelet_extra_args" {
+  description = "Extra arguments to pass to kubelet, like \"--register-with-taints=dedicated=ci-cd:NoSchedule --node-labels=purpose=ci-worker\""
+  type        = string
+  default     = ""
+}
+
+variable "format_mount_nvme_disk" {
+  description = "Mounts NVMe disks to /local1, /local2 etc. for multiple NVMe disks"
+  type = bool
+  default = false
+}
+
 variable "user_data_template_path" {
   description = "Path to a local, custom user data template file to use when rendering user data"
   type        = string
