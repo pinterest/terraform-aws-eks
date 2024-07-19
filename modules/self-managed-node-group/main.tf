@@ -149,20 +149,9 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  dynamic "iam_instance_profile" {
-    for_each = !var.create_iam_instance_profile && var.iam_instance_profile_arn != null ? [1] : []
-
-    content {
-      arn = var.iam_instance_profile_arn
-    }
-  }
-
-  dynamic "iam_instance_profile" {
-    for_each = !var.create_iam_instance_profile && var.iam_instance_profile_arn == null && var.iam_role_name != null ? [1] : []
-
-    content {
-      name = var.iam_role_name
-    }
+  iam_instance_profile {
+    arn  = var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn
+    name = (var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn) == null ? var.iam_role_name : null
   }
 
   image_id                             = coalesce(var.ami_id, data.aws_ami.eks_default[0].image_id)
