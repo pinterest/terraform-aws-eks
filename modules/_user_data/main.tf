@@ -11,7 +11,6 @@ locals {
       cluster_auth_base64 = var.cluster_auth_base64
       # Optional
       cluster_service_ipv4_cidr = var.cluster_service_ipv4_cidr != null ? var.cluster_service_ipv4_cidr : ""
-      cluster_service_ipv6_cidr = var.cluster_service_ipv6_cidr != null ? var.cluster_service_ipv6_cidr : ""
       bootstrap_extra_args      = var.bootstrap_extra_args
       kubelet_extra_args        = var.kubelet_extra_args
       format_mount_nvme_disk    = var.format_mount_nvme_disk

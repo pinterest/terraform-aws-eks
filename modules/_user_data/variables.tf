@@ -46,12 +46,6 @@ variable "cluster_service_ipv4_cidr" {
   default     = null
 }
 
-variable "cluster_service_ipv6_cidr" {
-  description = "The CIDR block to assign Kubernetes pod and service IP addresses from if `ipv6` was specified when the cluster was created. Kubernetes assigns service addresses from the unique local address range (fc00::/7) because you can't specify a custom IPv6 CIDR block when you create the cluster"
-  type        = string
-  default     = null
-}
-
 variable "pre_bootstrap_user_data" {
   description = "User data that is injected into the user data script ahead of the EKS bootstrap script. Not used when `platform` = `bottlerocket`"
   type        = string

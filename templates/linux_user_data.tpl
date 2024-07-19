@@ -35,9 +35,6 @@ mount -a
 %{ if length(cluster_service_ipv4_cidr) > 0 ~}
 export SERVICE_IPV4_CIDR=${cluster_service_ipv4_cidr}
 %{ endif ~}
-%{ if length(cluster_service_ipv6_cidr) > 0 ~}
-export SERVICE_IPV6_CIDR=${cluster_service_ipv6_cidr}
-%{ endif ~}
 %{ if enable_bootstrap_user_data ~}
 B64_CLUSTER_CA=${cluster_auth_base64}
 API_SERVER_URL=${cluster_endpoint}
