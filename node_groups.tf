@@ -486,6 +486,7 @@ module "self_managed_node_group" {
   user_data_template_path  = try(each.value.user_data_template_path, var.self_managed_node_group_defaults.user_data_template_path, "")
   cloudinit_pre_nodeadm    = try(each.value.cloudinit_pre_nodeadm, var.self_managed_node_group_defaults.cloudinit_pre_nodeadm, [])
   cloudinit_post_nodeadm   = try(each.value.cloudinit_post_nodeadm, var.self_managed_node_group_defaults.cloudinit_post_nodeadm, [])
+  kubelet_extra_args       = try(each.value.kubelet_extra_args, var.self_managed_node_group_defaults.kubelet_extra_args, "")
 
   # Launch Template
   create_launch_template                 = try(each.value.create_launch_template, var.self_managed_node_group_defaults.create_launch_template, true)
@@ -558,4 +559,6 @@ module "self_managed_node_group" {
   cluster_primary_security_group_id = try(each.value.attach_cluster_primary_security_group, var.self_managed_node_group_defaults.attach_cluster_primary_security_group, false) ? aws_eks_cluster.this[0].vpc_config[0].cluster_security_group_id : null
 
   tags = merge(var.tags, try(each.value.tags, var.self_managed_node_group_defaults.tags, {}))
+
+  labels = try(each.value.labels, var.self_managed_node_group_defaults.labels, null)
 }
