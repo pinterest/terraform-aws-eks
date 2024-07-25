@@ -203,10 +203,11 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  # # Set on node group instead
-  # instance_type = var.launch_template_instance_type
-  kernel_id = var.kernel_id
-  key_name  = var.key_name
+  # Instance type(s) are generally set on the node group,
+  # except when a ML capacity block reseravtion is used
+  instance_type = var.capacity_type == "CAPACITY_BLOCK" ? element(var.instance_types, 0) : null
+  kernel_id     = var.kernel_id
+  key_name      = var.key_name
 
   dynamic "license_specification" {
     for_each = length(var.license_specifications) > 0 ? var.license_specifications : {}
@@ -267,6 +268,7 @@ resource "aws_launch_template" "this" {
       ipv6_prefixes                = try(network_interfaces.value.ipv6_prefixes, [])
       network_card_index           = try(network_interfaces.value.network_card_index, null)
       network_interface_id         = try(network_interfaces.value.network_interface_id, null)
+      primary_ipv6                 = try(network_interfaces.value.primary_ipv6, null)
       private_ip_address           = try(network_interfaces.value.private_ip_address, null)
       # Ref: https://github.com/hashicorp/terraform-provider-aws/issues/4570
       security_groups = compact(concat(try(network_interfaces.value.security_groups, []), local.security_group_ids))
@@ -408,8 +410,9 @@ resource "aws_eks_node_group" "this" {
   capacity_type        = var.capacity_type
   disk_size            = var.use_custom_launch_template ? null : var.disk_size # if using a custom LT, set disk size on custom LT or else it will error here
   force_update_version = var.force_update_version
-  instance_types       = var.instance_types
-  labels               = var.labels
+  # ML capacity block reservation requires instance type to be set on the launch template
+  instance_types = var.capacity_type == "CAPACITY_BLOCK" ? null : var.instance_types
+  labels         = var.labels
 
   dynamic "launch_template" {
     for_each = var.use_custom_launch_template ? [1] : []
