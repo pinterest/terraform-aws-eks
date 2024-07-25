@@ -22,6 +22,8 @@ module "user_data" {
   pre_bootstrap_user_data    = var.pre_bootstrap_user_data
   post_bootstrap_user_data   = var.post_bootstrap_user_data
   bootstrap_extra_args       = var.bootstrap_extra_args
+  kubelet_extra_args         = var.kubelet_extra_args
+  format_mount_nvme_disk     = var.format_mount_nvme_disk
   user_data_template_path    = var.user_data_template_path
 
   cloudinit_pre_nodeadm  = var.cloudinit_pre_nodeadm
@@ -459,9 +461,6 @@ resource "aws_eks_node_group" "this" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [
-      scaling_config[0].desired_size,
-    ]
   }
 
   tags = merge(
