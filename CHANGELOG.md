@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [20.20.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.19.0...v20.20.0) (2024-07-19)
+
+
+### Features
+
+* Enable support for ignore_failed_scaling_activities ([#3104](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3104)) ([532226e](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/532226e64e61328b25426cabc27e4009e085154f))
+
+## [20.19.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.18.0...v20.19.0) (2024-07-15)
+
+
+### Features
+
+* Pass the `primary_ipv6` argument to the AWS provider. ([#3098](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3098)) ([e1bb8b6](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/e1bb8b66617299c6d9972139b1f9355322e7801e))
+
+## [20.18.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.17.2...v20.18.0) (2024-07-15)
+
+
+### Features
+
+* Support `bootstrap_self_managed_addons` ([#3099](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3099)) ([af88e7d](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/af88e7d2f835b3dfde242157ba3dd98b749bbc0b))
+
+## [20.17.2](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.17.1...v20.17.2) (2024-07-05)
+
+
+### Bug Fixes
+
+* Revert [#3058](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3058) - fix: Invoke aws_iam_session_context data source only when required ([#3092](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3092)) ([93ffdfc](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/93ffdfc6fa380cb0b73df7380e7e62302ebb1a98))
+
+## [20.17.1](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.17.0...v20.17.1) (2024-07-05)
+
+
+### Bug Fixes
+
+* Invoke `aws_iam_session_context` data source only when required ([#3058](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3058)) ([f02df92](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/f02df92b66a9776a689a2baf39e7474f3b703d89))
+
+## [20.17.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.16.0...v20.17.0) (2024-07-05)
+
+
+### Features
+
+* Add support for ML capacity block reservations with EKS managed node group(s) ([#3091](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3091)) ([ae3379e](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/ae3379e92429ed842f1c1017fd6ee59ec9f297d4))
+
 ## [20.16.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.15.0...v20.16.0) (2024-07-02)
 
 
