@@ -63,9 +63,12 @@ locals {
       cluster_dns_ips = "[${join(", ", formatlist("\"%s\"", local.cluster_dns_ips))}]"
 
       # Optional
-      bootstrap_extra_args     = var.bootstrap_extra_args
-      pre_bootstrap_user_data  = var.pre_bootstrap_user_data
-      post_bootstrap_user_data = var.post_bootstrap_user_data
+      bootstrap_extra_args      = var.bootstrap_extra_args
+      cluster_service_ipv4_cidr = var.cluster_service_ipv4_cidr != null ? var.cluster_service_ipv4_cidr : ""
+      format_mount_nvme_disk    = var.format_mount_nvme_disk
+      kubelet_extra_args        = var.kubelet_extra_args
+      pre_bootstrap_user_data   = var.pre_bootstrap_user_data
+      post_bootstrap_user_data  = var.post_bootstrap_user_data
     }
   ))
 
