@@ -420,6 +420,12 @@ variable "desired_size" {
   default     = 1
 }
 
+variable "use_latest_ami_release_version" {
+  description = "Determines whether to use the latest AMI release version for the given `ami_type` (except for `CUSTOM`). Note: `ami_type` and `cluster_version` must be supplied in order to enable this feature"
+  type        = bool
+  default     = false
+}
+
 variable "ignore_failed_scaling_activities" {
   description = "Whether to ignore failed Auto Scaling scaling activities while waiting for capacity."
   type        = bool
