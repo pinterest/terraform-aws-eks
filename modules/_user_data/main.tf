@@ -22,6 +22,8 @@ locals {
     AL2_ARM_64                 = "linux"
     BOTTLEROCKET_ARM_64        = "bottlerocket"
     BOTTLEROCKET_x86_64        = "bottlerocket"
+    BOTTLEROCKET_ARM_64_FIPS   = "bottlerocket"
+    BOTTLEROCKET_x86_64_FIPS   = "bottlerocket"
     BOTTLEROCKET_ARM_64_NVIDIA = "bottlerocket"
     BOTTLEROCKET_x86_64_NVIDIA = "bottlerocket"
     WINDOWS_CORE_2019_x86_64   = "windows"
@@ -30,6 +32,8 @@ locals {
     WINDOWS_FULL_2022_x86_64   = "windows"
     AL2023_x86_64_STANDARD     = "al2023"
     AL2023_ARM_64_STANDARD     = "al2023"
+    AL2023_x86_64_NEURON       = "al2023"
+    AL2023_x86_64_NVIDIA       = "al2023"
   }
   # Try to use `ami_type` first, but fall back to current, default behavior
   # TODO - will be removed in v21.0

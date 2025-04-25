@@ -116,6 +116,13 @@ variable "enable_pod_identity" {
   default     = true
 }
 
+# TODO - make v1 permssions the default policy at next breaking change
+variable "enable_v1_permissions" {
+  description = "Determines whether to enable permissions suitable for v1+ (`true`) or for v0.33.x-v0.37.x (`false`)"
+  type        = bool
+  default     = false
+}
+
 ################################################################################
 # IAM Role for Service Account (IRSA)
 ################################################################################
@@ -229,7 +236,7 @@ variable "node_iam_role_name" {
 }
 
 variable "node_iam_role_use_name_prefix" {
-  description = "Determines whether the IAM role name (`iam_role_name`) is used as a prefix"
+  description = "Determines whether the Node IAM role name (`node_iam_role_name`) is used as a prefix"
   type        = bool
   default     = true
 }
