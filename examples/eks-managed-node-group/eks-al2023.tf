@@ -3,7 +3,7 @@ module "eks_al2023" {
   version = "~> 20.0"
 
   cluster_name    = "${local.name}-al2023"
-  cluster_version = "1.30"
+  cluster_version = "1.31"
 
   # EKS Addons
   cluster_addons = {
@@ -20,6 +20,7 @@ module "eks_al2023" {
     example = {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       instance_types = ["m6i.large"]
+      ami_type       = "AL2023_x86_64_STANDARD"
 
       min_size = 2
       max_size = 5

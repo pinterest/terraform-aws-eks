@@ -285,6 +285,7 @@ variable "metadata_options" {
   }
 }
 
+# TODO - make this false by default at next breaking change
 variable "enable_monitoring" {
   description = "Enables/disables detailed monitoring"
   type        = bool
@@ -295,6 +296,19 @@ variable "enable_efa_support" {
   description = "Determines whether to enable Elastic Fabric Adapter (EFA) support"
   type        = bool
   default     = false
+}
+
+# TODO - make this true by default at next breaking change (remove variable, only pass indices)
+variable "enable_efa_only" {
+  description = "Determines whether to enable EFA (`false`, default) or EFA and EFA-only (`true`) network interfaces. Note: requires vpc-cni version `v1.18.4` or later"
+  type        = bool
+  default     = false
+}
+
+variable "efa_indices" {
+  description = "The indices of the network interfaces that should be EFA-enabled. Only valid when `enable_efa_support` = `true`"
+  type        = list(number)
+  default     = [0]
 }
 
 variable "network_interfaces" {
@@ -315,6 +329,7 @@ variable "create_placement_group" {
   default     = false
 }
 
+# TODO - remove at next breaking change
 variable "placement_group_strategy" {
   description = "The placement group strategy"
   type        = string
@@ -346,6 +361,12 @@ variable "tag_specifications" {
 variable "subnet_ids" {
   description = "Identifiers of EC2 Subnets to associate with the EKS Node Group. These subnets must have the following resource tag: `kubernetes.io/cluster/CLUSTER_NAME`"
   type        = list(string)
+  default     = null
+}
+
+variable "placement_group_az" {
+  description = "Availability zone where placement group is created (ex. `eu-west-1c`)"
+  type        = string
   default     = null
 }
 
@@ -457,6 +478,14 @@ variable "update_config" {
   default = {
     max_unavailable_percentage = 33
   }
+}
+
+variable "node_repair_config" {
+  description = "The node auto repair configuration for the node group"
+  type = object({
+    enabled = optional(bool, true)
+  })
+  default = null
 }
 
 variable "timeouts" {
