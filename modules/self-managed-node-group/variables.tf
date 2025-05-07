@@ -262,6 +262,12 @@ variable "placement" {
   default     = {}
 }
 
+variable "create_placement_group" {
+  description = "Determines whether a placement group is created & used by the node group"
+  type        = bool
+  default     = false
+}
+
 variable "private_dns_name_options" {
   description = "The options for the instance hostname. The default values are inherited from the subnet"
   type        = map(string)
@@ -340,6 +346,19 @@ variable "enable_efa_support" {
   default     = false
 }
 
+# TODO - make this true by default at next breaking change (remove variable, only pass indices)
+variable "enable_efa_only" {
+  description = "Determines whether to enable EFA (`false`, default) or EFA and EFA-only (`true`) network interfaces. Note: requires vpc-cni version `v1.18.4` or later"
+  type        = bool
+  default     = false
+}
+
+variable "efa_indices" {
+  description = "The indices of the network interfaces that should be EFA-enabled. Only valid when `enable_efa_support` = `true`"
+  type        = list(number)
+  default     = [0]
+}
+
 variable "metadata_options" {
   description = "Customize the metadata options for the instance"
   type        = map(string)
@@ -396,6 +415,12 @@ variable "availability_zones" {
   default     = null
 }
 
+variable "placement_group_az" {
+  description = "Availability zone where placement group is created (ex. `eu-west-1c`)"
+  type        = string
+  default     = null
+}
+
 variable "subnet_ids" {
   description = "A list of subnet IDs to launch resources in. Subnets automatically determine which availability zones the group will reside. Conflicts with `availability_zones`"
   type        = list(string)
@@ -418,6 +443,12 @@ variable "desired_size" {
   description = "The number of Amazon EC2 instances that should be running in the autoscaling group"
   type        = number
   default     = 1
+}
+
+variable "desired_size_type" {
+  description = "The unit of measurement for the value specified for `desired_size`. Supported for attribute-based instance type selection only. Valid values: `units`, `vcpu`, `memory-mib`"
+  type        = string
+  default     = null
 }
 
 variable "use_latest_ami_release_version" {

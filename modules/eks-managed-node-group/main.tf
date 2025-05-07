@@ -41,20 +41,23 @@ data "aws_ec2_instance_type" "this" {
 }
 
 locals {
+  enable_efa_support = var.create && var.enable_efa_support
+
   efa_instance_type = try(element(var.instance_types, 0), "")
   num_network_cards = try(data.aws_ec2_instance_type.this[0].maximum_network_cards, 0)
 
+  # Primary network interface must be EFA, remaining can be EFA or EFA-only
   efa_network_interfaces = [
     for i in range(local.num_network_cards) : {
       associate_public_ip_address = false
       delete_on_termination       = true
       device_index                = i == 0 ? 0 : 1
       network_card_index          = i
-      interface_type              = "efa"
+      interface_type              = var.enable_efa_only ? contains(concat([0], var.efa_indices), i) ? "efa" : "efa-only" : "efa"
     }
   ]
 
-  network_interfaces = var.enable_efa_support ? local.efa_network_interfaces : var.network_interfaces
+  network_interfaces = local.enable_efa_support ? local.efa_network_interfaces : var.network_interfaces
 }
 
 ################################################################################
@@ -65,7 +68,7 @@ locals {
   launch_template_name = coalesce(var.launch_template_name, "${var.name}-eks-node-group")
   security_group_ids   = compact(concat([var.cluster_primary_security_group_id], var.vpc_security_group_ids))
 
-  placement = var.create && (var.enable_efa_support || var.create_placement_group) ? { group_name = aws_placement_group.this[0].name } : var.placement
+  placement = local.create_placement_group ? { group_name = aws_placement_group.this[0].name } : var.placement
 }
 
 resource "aws_launch_template" "this" {
@@ -354,6 +357,8 @@ locals {
     CUSTOM                     = "NONE"
     BOTTLEROCKET_ARM_64        = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}/arm64/latest/image_version"
     BOTTLEROCKET_x86_64        = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}/x86_64/latest/image_version"
+    BOTTLEROCKET_ARM_64_FIPS   = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}-fips/arm64/latest/image_version"
+    BOTTLEROCKET_x86_64_FIPS   = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}-fips/x86_64/latest/image_version"
     BOTTLEROCKET_ARM_64_NVIDIA = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}-nvidia/arm64/latest/image_version"
     BOTTLEROCKET_x86_64_NVIDIA = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}-nvidia/x86_64/latest/image_version"
     WINDOWS_CORE_2019_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-EKS_Optimized-${local.ssm_cluster_version}"
@@ -362,6 +367,8 @@ locals {
     WINDOWS_FULL_2022_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2022-English-Core-EKS_Optimized-${local.ssm_cluster_version}"
     AL2023_x86_64_STANDARD     = "/aws/service/eks/optimized-ami/${local.ssm_cluster_version}/amazon-linux-2023/x86_64/standard/recommended/release_version"
     AL2023_ARM_64_STANDARD     = "/aws/service/eks/optimized-ami/${local.ssm_cluster_version}/amazon-linux-2023/arm64/standard/recommended/release_version"
+    AL2023_x86_64_NEURON       = "/aws/service/eks/optimized-ami/${local.ssm_cluster_version}/amazon-linux-2023/x86_64/neuron/recommended/release_version"
+    AL2023_x86_64_NVIDIA       = "/aws/service/eks/optimized-ami/${local.ssm_cluster_version}/amazon-linux-2023/x86_64/nvidia/recommended/release_version"
   }
 
   # The Windows SSM params currently do not have a release version, so we have to get the full output JSON blob and parse out the release version
@@ -392,7 +399,7 @@ resource "aws_eks_node_group" "this" {
   # Required
   cluster_name  = var.cluster_name
   node_role_arn = var.create_iam_role ? aws_iam_role.this[0].arn : var.iam_role_arn
-  subnet_ids    = var.enable_efa_support ? data.aws_subnets.efa[0].ids : var.subnet_ids
+  subnet_ids    = local.create_placement_group ? data.aws_subnets.placement_group[0].ids : var.subnet_ids
 
   scaling_config {
     min_size     = var.min_size
@@ -450,6 +457,14 @@ resource "aws_eks_node_group" "this" {
     content {
       max_unavailable_percentage = try(update_config.value.max_unavailable_percentage, null)
       max_unavailable            = try(update_config.value.max_unavailable, null)
+    }
+  }
+
+  dynamic "node_repair_config" {
+    for_each = var.node_repair_config != null ? [var.node_repair_config] : []
+
+    content {
+      enabled = node_repair_config.value.enabled
     }
   }
 
@@ -604,8 +619,12 @@ resource "aws_iam_role_policy" "this" {
 # Placement Group
 ################################################################################
 
+locals {
+  create_placement_group = var.create && (local.enable_efa_support || var.create_placement_group)
+}
+
 resource "aws_placement_group" "this" {
-  count = var.create && (var.enable_efa_support || var.create_placement_group) ? 1 : 0
+  count = local.create_placement_group ? 1 : 0
 
   name     = "${var.cluster_name}-${var.name}"
   strategy = var.placement_group_strategy
@@ -623,8 +642,11 @@ resource "aws_placement_group" "this" {
 ################################################################################
 
 # Find the availability zones supported by the instance type
+# TODO - remove at next breaking change
+# Force users to be explicit about which AZ to use when using placement groups,
+# with or without EFA support
 data "aws_ec2_instance_type_offerings" "this" {
-  count = var.create && var.enable_efa_support ? 1 : 0
+  count = local.enable_efa_support ? 1 : 0
 
   filter {
     name   = "instance-type"
@@ -636,17 +658,31 @@ data "aws_ec2_instance_type_offerings" "this" {
 
 # Reverse the lookup to find one of the subnets provided based on the availability
 # availability zone ID of the queried instance type (supported)
-data "aws_subnets" "efa" {
-  count = var.create && var.enable_efa_support ? 1 : 0
+data "aws_subnets" "placement_group" {
+  count = local.create_placement_group ? 1 : 0
 
   filter {
     name   = "subnet-id"
     values = var.subnet_ids
   }
 
-  filter {
-    name   = "availability-zone-id"
-    values = data.aws_ec2_instance_type_offerings.this[0].locations
+  # The data source can lookup the first available AZ or you can specify an AZ (next filter)
+  dynamic "filter" {
+    for_each = var.enable_efa_support && var.placement_group_az == null ? [1] : []
+
+    content {
+      name   = "availability-zone-id"
+      values = data.aws_ec2_instance_type_offerings.this[0].locations
+    }
+  }
+
+  dynamic "filter" {
+    for_each = var.placement_group_az != null ? [var.placement_group_az] : []
+
+    content {
+      name   = "availability-zone"
+      values = [filter.value]
+    }
   }
 }
 
@@ -660,9 +696,9 @@ resource "aws_autoscaling_schedule" "this" {
   scheduled_action_name  = each.key
   autoscaling_group_name = aws_eks_node_group.this[0].resources[0].autoscaling_groups[0].name
 
-  min_size         = try(each.value.min_size, null)
-  max_size         = try(each.value.max_size, null)
-  desired_capacity = try(each.value.desired_size, null)
+  min_size         = try(each.value.min_size, -1)
+  max_size         = try(each.value.max_size, -1)
+  desired_capacity = try(each.value.desired_size, -1)
   start_time       = try(each.value.start_time, null)
   end_time         = try(each.value.end_time, null)
   time_zone        = try(each.value.time_zone, null)
