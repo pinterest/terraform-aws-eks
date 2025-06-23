@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [20.37.1](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.37.0...v20.37.1) (2025-06-18)
+
+
+### Bug Fixes
+
+* Restrict AWS provider max version due to v6 provider breaking changes ([#3384](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3384)) ([681a868](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/681a868d624878474fd9f92d1b04d3fec0120db7))
+
+## [20.37.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.36.1...v20.37.0) (2025-06-09)
+
+
+### Features
+
+* Add AL2023 ARM64 NVIDIA variants ([#3369](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3369)) ([715d42b](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/715d42bf146791cad911b0b6979c5ce67bc0d2f6))
+
+## [20.36.1](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.36.0...v20.36.1) (2025-06-09)
+
+
+### Bug Fixes
+
+* Ensure `additional_cluster_dns_ips` is passed through from root module ([#3376](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3376)) ([7a83b1b](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/7a83b1b3db9c7475fe6ec46d1c300c0a18f19b2a))
+
 ## [20.36.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.35.0...v20.36.0) (2025-04-18)
 
 
