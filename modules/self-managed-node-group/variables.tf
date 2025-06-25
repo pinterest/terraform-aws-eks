@@ -80,6 +80,12 @@ variable "bootstrap_extra_args" {
   default     = ""
 }
 
+variable "kubelet_extra_args" {
+  description = "Extra arguments to pass to kubelet, like \"--register-with-taints=dedicated=ci-cd:NoSchedule --node-labels=purpose=ci-worker\""
+  type        = string
+  default     = ""
+}
+
 variable "user_data_template_path" {
   description = "Path to a local, custom user data template file to use when rendering user data"
   type        = string
@@ -292,6 +298,12 @@ variable "cluster_version" {
   default     = null
 }
 
+variable "labels" {
+  description = "Key-value map of Kubernetes labels. Only labels that are applied with the EKS API are managed by this argument. Other Kubernetes labels applied to the EKS Node Group will not be managed"
+  type        = map(string)
+  default     = null
+}
+
 variable "instance_requirements" {
   description = "The attribute requirements for the type of instance. If present then `instance_type` cannot be present"
   type        = any
@@ -437,6 +449,12 @@ variable "desired_size_type" {
   description = "The unit of measurement for the value specified for `desired_size`. Supported for attribute-based instance type selection only. Valid values: `units`, `vcpu`, `memory-mib`"
   type        = string
   default     = null
+}
+
+variable "use_latest_ami_release_version" {
+  description = "Determines whether to use the latest AMI release version for the given `ami_type` (except for `CUSTOM`). Note: `ami_type` and `cluster_version` must be supplied in order to enable this feature"
+  type        = bool
+  default     = false
 }
 
 variable "ignore_failed_scaling_activities" {

@@ -35,6 +35,7 @@ locals {
     AL2023_x86_64_NEURON       = "al2023"
     AL2023_x86_64_NVIDIA       = "al2023"
     AL2023_ARM_64_NVIDIA       = "al2023"
+    CUSTOM                     = "al2023"
   }
   # Try to use `ami_type` first, but fall back to current, default behavior
   # TODO - will be removed in v21.0
@@ -68,9 +69,12 @@ locals {
       cluster_dns_ips = "[${join(", ", formatlist("\"%s\"", local.cluster_dns_ips))}]"
 
       # Optional
-      bootstrap_extra_args     = var.bootstrap_extra_args
-      pre_bootstrap_user_data  = var.pre_bootstrap_user_data
-      post_bootstrap_user_data = var.post_bootstrap_user_data
+      bootstrap_extra_args      = var.bootstrap_extra_args
+      cluster_service_ipv4_cidr = var.cluster_service_ipv4_cidr != null ? var.cluster_service_ipv4_cidr : ""
+      format_mount_nvme_disk    = var.format_mount_nvme_disk
+      kubelet_extra_args        = var.kubelet_extra_args
+      pre_bootstrap_user_data   = var.pre_bootstrap_user_data
+      post_bootstrap_user_data  = var.post_bootstrap_user_data
     }
   ))
 

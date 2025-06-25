@@ -57,7 +57,7 @@ locals {
 }
 
 data "aws_ssm_parameter" "ami" {
-  count = var.create ? 1 : 0
+  count = var.create && var.use_latest_ami_release_version ? 1 : 0
 
   name = local.ami_type_to_ssm_param[var.ami_type]
 }
@@ -65,6 +65,10 @@ data "aws_ssm_parameter" "ami" {
 ################################################################################
 # User Data
 ################################################################################
+
+locals {
+  node_labels_string = join(",", [for k, v in var.labels : "${k}=${v}"])
+}
 
 module "user_data" {
   source = "../_user_data"
@@ -85,6 +89,7 @@ module "user_data" {
   pre_bootstrap_user_data    = var.pre_bootstrap_user_data
   post_bootstrap_user_data   = var.post_bootstrap_user_data
   bootstrap_extra_args       = var.bootstrap_extra_args
+  kubelet_extra_args         = "${var.kubelet_extra_args} --node-labels=${local.node_labels_string}"
   user_data_template_path    = var.user_data_template_path
 
   cloudinit_pre_nodeadm  = var.cloudinit_pre_nodeadm
@@ -233,10 +238,11 @@ resource "aws_launch_template" "this" {
   }
 
   iam_instance_profile {
-    arn = var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn
+    arn  = var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn
+    name = (var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn) == null ? var.iam_role_name : null
   }
 
-  image_id                             = coalesce(var.ami_id, nonsensitive(data.aws_ssm_parameter.ami[0].value))
+  image_id                             = coalesce(var.ami_id, try(nonsensitive(data.aws_ssm_parameter.ami[0].value), null))
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
 
   dynamic "instance_market_options" {
