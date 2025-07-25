@@ -29,6 +29,7 @@ locals {
     AL2023_x86_64_NEURON       = "al2023"
     AL2023_x86_64_NVIDIA       = "al2023"
     AL2023_ARM_64_NVIDIA       = "al2023"
+    CUSTOM                     = "al2023"
   }
 
   user_data_type = local.ami_type_to_user_data_type[var.ami_type]
@@ -38,6 +39,7 @@ locals {
     AL2_x86_64                 = "/aws/service/eks/optimized-ami/${local.ssm_cluster_version}/amazon-linux-2/recommended/image_id"
     AL2_x86_64_GPU             = "/aws/service/eks/optimized-ami/${local.ssm_cluster_version}/amazon-linux-2-gpu/recommended/image_id"
     AL2_ARM_64                 = "/aws/service/eks/optimized-ami/${local.ssm_cluster_version}/amazon-linux-2-arm64/recommended/image_id"
+    CUSTOM                     = "NONE"
     BOTTLEROCKET_ARM_64        = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}/arm64/latest/image_id"
     BOTTLEROCKET_x86_64        = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}/x86_64/latest/image_id"
     BOTTLEROCKET_ARM_64_FIPS   = "/aws/service/bottlerocket/aws-k8s-${local.ssm_cluster_version}-fips/arm64/latest/image_id"
