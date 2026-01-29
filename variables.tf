@@ -218,7 +218,7 @@ variable "access_entries" {
         namespaces = optional(list(string))
         type       = string
       })
-    })))
+    })), {})
   }))
   default = {}
 }
@@ -660,6 +660,7 @@ variable "identity_providers" {
     required_claims               = optional(map(string))
     username_claim                = optional(string)
     username_prefix               = optional(string)
+    tags                          = optional(map(string), {})
   }))
   default = null
 }
@@ -782,7 +783,9 @@ variable "fargate_profiles" {
 variable "self_managed_node_groups" {
   description = "Map of self-managed node group definitions to create"
   type = map(object({
-    create = optional(bool, true)
+    create             = optional(bool)
+    kubernetes_version = optional(string)
+
     # Autoscaling Group
     create_autoscaling_group         = optional(bool)
     name                             = optional(string) # Will fall back to map key
@@ -838,7 +841,8 @@ variable "self_managed_node_groups" {
       }))
       strategy = optional(string)
       triggers = optional(list(string))
-    }))
+      })
+    )
     use_mixed_instances_policy = optional(bool)
     mixed_instances_policy = optional(object({
       instances_distribution = optional(object({
@@ -1156,6 +1160,7 @@ variable "self_managed_node_groups" {
     create_access_entry = optional(bool)
     iam_role_arn        = optional(string)
     # Security group
+    vpc_security_group_ids                = optional(list(string), [])
     attach_cluster_primary_security_group = optional(bool, false)
     create_security_group                 = optional(bool)
     security_group_name                   = optional(string)

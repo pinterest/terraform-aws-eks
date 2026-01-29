@@ -2,6 +2,69 @@
 
 All notable changes to this project will be documented in this file.
 
+## [21.0.9](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.8...v21.0.9) (2025-08-13)
+
+
+### Bug Fixes
+
+* Allow disabling instance refresh on self-managed node groups (part deux) ([#3478](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3478)) ([ca8f37e](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/ca8f37e8ce2a15d0b216ac30e431fa4ac03fc8bc))
+
+## [21.0.8](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.7...v21.0.8) (2025-08-07)
+
+
+### Bug Fixes
+
+* Allow disabling instance refresh on self-managed node groups ([#3473](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3473)) ([6a887ad](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/6a887ad38686299c27333a83eb62310ed3106684))
+
+## [21.0.7](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.6...v21.0.7) (2025-08-02)
+
+
+### Bug Fixes
+
+* Correct access policy logic to support not providing a policy to associate ([#3464](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3464)) ([39be61d](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/39be61d70232ba156fbf92ef90243b93fe5a9eee))
+
+## [21.0.6](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.5...v21.0.6) (2025-07-30)
+
+
+### Bug Fixes
+
+* Allow `instance_requirements` to be set in self-managed node groups ([#3455](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3455)) ([5322bf7](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/5322bf72fbbff4afb6a02ae283b21419d9de5b17))
+
+## [21.0.5](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.4...v21.0.5) (2025-07-29)
+
+
+### Bug Fixes
+
+* Correct addon logic lookup to pull latest addon version ([#3449](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3449)) ([55d7fa2](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/55d7fa23a356f518ae7b73ec2ddb0ab5947f9a42))
+
+## [21.0.4](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.3...v21.0.4) (2025-07-25)
+
+
+### Bug Fixes
+
+* Correct encryption configuration enable logic; avoid creating Auto Mode policy when Auto Mode is not enabled ([#3439](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3439)) ([6b8a3d9](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/6b8a3d94777346d79a64ccd8287c96b525348013))
+
+## [21.0.3](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.2...v21.0.3) (2025-07-24)
+
+
+### Bug Fixes
+
+* Correct variable defaults for `ami_id` and `kubernetes_version` ([#3437](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3437)) ([8807e0b](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/8807e0bb55fdc49ed894b5b51c14131526dbfb91))
+
+## [21.0.2](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.1...v21.0.2) (2025-07-24)
+
+
+### Bug Fixes
+
+* Move `encryption_config` default for `resources` out of type definition and to default variable value to allow disabling encryption ([#3436](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3436)) ([b37368f](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/b37368fdbc608a026f9c17952d964467f5e44e8a))
+
+## [21.0.1](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.0...v21.0.1) (2025-07-24)
+
+
+### Bug Fixes
+
+* Correct logic to try to use module created IAM role before falli… ([#3433](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3433)) ([97d4ebb](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/97d4ebbe68a23aa431a534fd7ed56a76f9b37801))
+
 ## [21.0.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v20.37.2...v21.0.0) (2025-07-23)
 
 

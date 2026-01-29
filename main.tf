@@ -24,7 +24,7 @@ locals {
   role_arn = try(aws_iam_role.this[0].arn, var.iam_role_arn)
 
   create_outposts_local_cluster = var.outpost_config != null
-  enable_encryption_config      = length(var.encryption_config) > 0 && !local.create_outposts_local_cluster
+  enable_encryption_config      = var.encryption_config != null && !local.create_outposts_local_cluster
 
   auto_mode_enabled = try(var.compute_config.enabled, false)
 }
@@ -62,7 +62,7 @@ resource "aws_eks_cluster" "this" {
     content {
       enabled       = compute_config.value.enabled
       node_pools    = compute_config.value.node_pools
-      node_role_arn = compute_config.value.node_pools != null ? try(compute_config.value.node_role_arn, aws_iam_role.eks_auto[0].arn, null) : null
+      node_role_arn = compute_config.value.node_pools != null ? try(aws_iam_role.eks_auto[0].arn, compute_config.value.node_role_arn) : null
     }
   }
 
@@ -269,7 +269,7 @@ locals {
   # associations within a single entry
   flattened_access_entries = flatten([
     for entry_key, entry_val in local.merged_access_entries : [
-      for pol_key, pol_val in try(entry_val.policy_associations, {}) :
+      for pol_key, pol_val in entry_val.policy_associations :
       merge(
         {
           principal_arn = entry_val.principal_arn
@@ -444,7 +444,7 @@ data "tls_certificate" "this" {
   # Not available on outposts
   count = local.create_oidc_provider && var.include_oidc_root_ca_thumbprint ? 1 : 0
 
-  url = local.dualstack_oidc_issuer_url
+  url = aws_eks_cluster.this[0].identity[0].oidc[0].issuer
 }
 
 resource "aws_iam_openid_connect_provider" "oidc_provider" {
@@ -453,7 +453,7 @@ resource "aws_iam_openid_connect_provider" "oidc_provider" {
 
   client_id_list  = distinct(compact(concat(["sts.amazonaws.com"], var.openid_connect_audiences)))
   thumbprint_list = concat(local.oidc_root_ca_thumbprint, var.custom_oidc_thumbprints)
-  url             = local.dualstack_oidc_issuer_url
+  url             = aws_eks_cluster.this[0].identity[0].oidc[0].issuer
 
   tags = merge(
     { Name = "${var.name}-eks-irsa" },
@@ -590,7 +590,7 @@ resource "aws_iam_policy" "cluster_encryption" {
 }
 
 data "aws_iam_policy_document" "custom" {
-  count = local.create_iam_role && var.enable_auto_mode_custom_tags ? 1 : 0
+  count = local.create_iam_role && local.auto_mode_enabled && var.enable_auto_mode_custom_tags ? 1 : 0
 
   dynamic "statement" {
     for_each = var.enable_auto_mode_custom_tags ? [1] : []
@@ -724,7 +724,7 @@ data "aws_iam_policy_document" "custom" {
 }
 
 resource "aws_iam_policy" "custom" {
-  count = local.create_iam_role && var.enable_auto_mode_custom_tags ? 1 : 0
+  count = local.create_iam_role && local.auto_mode_enabled && var.enable_auto_mode_custom_tags ? 1 : 0
 
   name        = var.iam_role_use_name_prefix ? null : local.iam_role_name
   name_prefix = var.iam_role_use_name_prefix ? "${local.iam_role_name}-" : null
@@ -737,7 +737,7 @@ resource "aws_iam_policy" "custom" {
 }
 
 resource "aws_iam_role_policy_attachment" "custom" {
-  count = local.create_iam_role && var.enable_auto_mode_custom_tags ? 1 : 0
+  count = local.create_iam_role && local.auto_mode_enabled && var.enable_auto_mode_custom_tags ? 1 : 0
 
   policy_arn = aws_iam_policy.custom[0].arn
   role       = aws_iam_role.this[0].name
@@ -766,7 +766,7 @@ resource "aws_eks_addon" "this" {
   cluster_name = aws_eks_cluster.this[0].id
   addon_name   = coalesce(each.value.name, each.key)
 
-  addon_version        = try(each.value.addon_version, data.aws_eks_addon_version.this[each.key].version)
+  addon_version        = coalesce(each.value.addon_version, data.aws_eks_addon_version.this[each.key].version)
   configuration_values = each.value.configuration_values
 
   dynamic "pod_identity_association" {
@@ -784,9 +784,9 @@ resource "aws_eks_addon" "this" {
   service_account_role_arn    = each.value.service_account_role_arn
 
   timeouts {
-    create = try(each.value.timeouts.create, var.addons_timeouts.create, null)
-    update = try(each.value.timeouts.update, var.addons_timeouts.update, null)
-    delete = try(each.value.timeouts.delete, var.addons_timeouts.delete, null)
+    create = try(coalesce(each.value.timeouts.create, var.addons_timeouts.create), null)
+    update = try(coalesce(each.value.timeouts.update, var.addons_timeouts.update), null)
+    delete = try(coalesce(each.value.timeouts.delete, var.addons_timeouts.delete), null)
   }
 
   tags = merge(
@@ -811,7 +811,7 @@ resource "aws_eks_addon" "before_compute" {
   cluster_name = aws_eks_cluster.this[0].id
   addon_name   = coalesce(each.value.name, each.key)
 
-  addon_version        = try(each.value.addon_version, data.aws_eks_addon_version.this[each.key].version)
+  addon_version        = coalesce(each.value.addon_version, data.aws_eks_addon_version.this[each.key].version)
   configuration_values = each.value.configuration_values
 
   dynamic "pod_identity_association" {
@@ -829,9 +829,9 @@ resource "aws_eks_addon" "before_compute" {
   service_account_role_arn    = each.value.service_account_role_arn
 
   timeouts {
-    create = try(each.value.timeouts.create, var.addons_timeouts.create, null)
-    update = try(each.value.timeouts.update, var.addons_timeouts.update, null)
-    delete = try(each.value.timeouts.delete, var.addons_timeouts.delete, null)
+    create = try(coalesce(each.value.timeouts.create, var.addons_timeouts.create), null)
+    update = try(coalesce(each.value.timeouts.update, var.addons_timeouts.update), null)
+    delete = try(coalesce(each.value.timeouts.delete, var.addons_timeouts.delete), null)
   }
 
   tags = merge(
@@ -856,7 +856,7 @@ resource "aws_eks_identity_provider_config" "this" {
     client_id                     = each.value.client_id
     groups_claim                  = each.value.groups_claim
     groups_prefix                 = each.value.groups_prefix
-    identity_provider_config_name = try(each.value.identity_provider_config_name, each.key)
+    identity_provider_config_name = coalesce(each.value.identity_provider_config_name, each.key)
     issuer_url                    = each.value.issuer_url
     required_claims               = each.value.required_claims
     username_claim                = each.value.username_claim

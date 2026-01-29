@@ -328,7 +328,7 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  instance_type = var.instance_type
+  instance_type = var.instance_requirements != null ? null : var.instance_type
   kernel_id     = var.kernel_id
   key_name      = var.key_name
 
@@ -533,7 +533,7 @@ resource "aws_autoscaling_group" "this" {
   }
 
   dynamic "instance_refresh" {
-    for_each = var.instance_refresh != null ? [var.instance_refresh] : []
+    for_each = length({ for k, v in var.instance_refresh : k => v if v != null }) > 0 ? [var.instance_refresh] : []
 
     content {
       dynamic "preferences" {

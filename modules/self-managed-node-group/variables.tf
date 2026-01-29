@@ -365,6 +365,7 @@ variable "ami_id" {
   description = "The AMI from which to launch the instance"
   type        = string
   default     = ""
+  nullable    = false
 }
 
 variable "ami_type" {
@@ -727,12 +728,12 @@ variable "instance_refresh" {
       checkpoint_percentages       = optional(list(number))
       instance_warmup              = optional(number)
       max_healthy_percentage       = optional(number)
-      min_healthy_percentage       = optional(number, 33)
+      min_healthy_percentage       = optional(number)
       scale_in_protected_instances = optional(string)
       skip_matching                = optional(bool)
       standby_instances            = optional(string)
     }))
-    strategy = optional(string, "Rolling")
+    strategy = optional(string)
     triggers = optional(list(string))
   })
   default = {
