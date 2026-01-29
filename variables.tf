@@ -44,6 +44,12 @@ variable "enabled_log_types" {
   default     = ["audit", "api", "authenticator"]
 }
 
+variable "deletion_protection" {
+  description = "Whether to enable deletion protection for the cluster. When enabled, the cluster cannot be deleted unless deletion protection is first disabled"
+  type        = bool
+  default     = null
+}
+
 variable "force_update_version" {
   description = "Force version update by overriding upgrade-blocking readiness checks when updating a cluster"
   type        = bool
@@ -629,7 +635,7 @@ variable "addons" {
       create = optional(string)
       update = optional(string)
       delete = optional(string)
-    }))
+    }), {})
     tags = optional(map(string), {})
   }))
   default = null
@@ -642,7 +648,7 @@ variable "addons_timeouts" {
     update = optional(string)
     delete = optional(string)
   })
-  default = null
+  default = {}
 }
 
 ################################################################################

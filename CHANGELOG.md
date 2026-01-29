@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [21.1.5](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.1.4...v21.1.5) (2025-08-26)
+
+
+### Bug Fixes
+
+* Ensure module created security group is included on any network interfaces created ([#3495](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3495)) ([fa1d422](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/fa1d4221c8fd346927e88d617181fdb75790ecf8))
+
+## [21.1.4](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.1.3...v21.1.4) (2025-08-25)
+
+
+### Bug Fixes
+
+* Ensure module created security group is included on any network interfaces created ([#3493](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3493)) ([e5cff84](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/e5cff842835f2bdede53db843c2b37b3d3534332))
+
+## [21.1.3](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.1.2...v21.1.3) (2025-08-24)
+
+
+### Bug Fixes
+
+* Correct addon timeout lookup/override logic to support global and addon specific settings ([#3492](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3492)) ([b236208](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/b236208d5ce9ff14447f3d8d580b71790c8074e9))
+
+## [21.1.2](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.1.1...v21.1.2) (2025-08-24)
+
+
+### Bug Fixes
+
+* Remediate type mismatch for EFA interfaces and ensure correct (local) definition is used ([#3491](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3491)) ([3959b65](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/3959b65672286c84c03012e12a2e7c8630db6c11))
+
+## [21.1.1](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.1.0...v21.1.1) (2025-08-24)
+
+
+### Bug Fixes
+
+* Correct metadata options loop condition due to variable definition defaults ([#3490](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3490)) ([b40968a](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/b40968a503f1134adcb986af9b4c7f3f3514b811))
+
+## [21.1.0](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.9...v21.1.0) (2025-08-15)
+
+
+### Features
+
+* Add support for deletion protection functionality in the cluster ([#3475](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/3475)) ([83c9cd1](https://github.com/terraform-aws-modules/terraform-aws-eks/commit/83c9cd187a36c10f46472e82a197212e897f7f0d))
+
 ## [21.0.9](https://github.com/terraform-aws-modules/terraform-aws-eks/compare/v21.0.8...v21.0.9) (2025-08-13)
 
 

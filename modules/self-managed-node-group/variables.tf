@@ -317,7 +317,6 @@ variable "network_interfaces" {
     primary_ipv6         = optional(bool)
     private_ip_address   = optional(string)
     security_groups      = optional(list(string), [])
-    subnet_id            = optional(string)
   }))
   default  = []
   nullable = false
