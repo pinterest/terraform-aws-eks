@@ -447,24 +447,6 @@ module "self_managed_node_group" {
   autoscaling_group_tags = each.value.autoscaling_group_tags
 
   # User data
-<<<<<<< HEAD
-  platform = try(each.value.platform, var.self_managed_node_group_defaults.platform, null)
-  # TODO - update this when `var.platform` is removed in v21.0
-  ami_type                       = try(each.value.ami_type, var.self_managed_node_group_defaults.ami_type, "AL2_x86_64")
-  use_latest_ami_release_version = try(each.value.use_latest_ami_release_version, var.self_managed_node_group_defaults.use_latest_ami_release_version, false)
-  cluster_endpoint               = try(time_sleep.this[0].triggers["cluster_endpoint"], "")
-  cluster_auth_base64            = try(time_sleep.this[0].triggers["cluster_certificate_authority_data"], "")
-  cluster_service_cidr           = try(time_sleep.this[0].triggers["cluster_service_cidr"], "")
-  additional_cluster_dns_ips     = try(each.value.additional_cluster_dns_ips, var.self_managed_node_group_defaults.additional_cluster_dns_ips, [])
-  cluster_ip_family              = var.cluster_ip_family
-  pre_bootstrap_user_data        = try(each.value.pre_bootstrap_user_data, var.self_managed_node_group_defaults.pre_bootstrap_user_data, "")
-  post_bootstrap_user_data       = try(each.value.post_bootstrap_user_data, var.self_managed_node_group_defaults.post_bootstrap_user_data, "")
-  bootstrap_extra_args           = try(each.value.bootstrap_extra_args, var.self_managed_node_group_defaults.bootstrap_extra_args, "")
-  user_data_template_path        = try(each.value.user_data_template_path, var.self_managed_node_group_defaults.user_data_template_path, "")
-  cloudinit_pre_nodeadm          = try(each.value.cloudinit_pre_nodeadm, var.self_managed_node_group_defaults.cloudinit_pre_nodeadm, [])
-  cloudinit_post_nodeadm         = try(each.value.cloudinit_post_nodeadm, var.self_managed_node_group_defaults.cloudinit_post_nodeadm, [])
-  kubelet_extra_args             = try(each.value.kubelet_extra_args, var.self_managed_node_group_defaults.kubelet_extra_args, "")
-=======
   ami_type                   = try(each.value.ami_type, null)
   cluster_endpoint           = try(time_sleep.this[0].triggers["endpoint"], "")
   cluster_auth_base64        = try(time_sleep.this[0].triggers["certificate_authority_data"], "")
@@ -477,7 +459,7 @@ module "self_managed_node_group" {
   user_data_template_path    = try(each.value.user_data_template_path, null)
   cloudinit_pre_nodeadm      = try(each.value.cloudinit_pre_nodeadm, null)
   cloudinit_post_nodeadm     = try(each.value.cloudinit_post_nodeadm, null)
->>>>>>> v21.0.0
+  kubelet_extra_args         = try(each.value.kubelet_extra_args, var.self_managed_node_group_defaults.kubelet_extra_args, "")
 
   # Launch Template
   create_launch_template                 = try(each.value.create_launch_template, null)
