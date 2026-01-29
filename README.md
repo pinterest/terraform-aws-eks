@@ -31,7 +31,7 @@ module "eks" {
   version = "~> 20.31"
 
   cluster_name    = "example"
-  cluster_version = "1.31"
+  cluster_version = "1.33"
 
   # Optional
   cluster_endpoint_public_access = true
@@ -80,7 +80,7 @@ module "eks" {
   version = "~> 20.31"
 
   cluster_name    = "example"
-  cluster_version = "1.31"
+  cluster_version = "1.33"
 
   cluster_addons = {
     coredns                = {}
@@ -147,7 +147,7 @@ module "eks" {
   version = "~> 20.0"
 
   cluster_name    = "my-cluster"
-  cluster_version = "1.31"
+  cluster_version = "1.33"
 
   bootstrap_self_managed_addons = false
   cluster_addons = {
