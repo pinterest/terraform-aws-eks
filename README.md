@@ -26,6 +26,17 @@ Please note that we strive to provide a comprehensive suite of documentation for
 
 ### EKS Auto Mode
 
+> [!CAUTION]
+> Due to the current EKS Auto Mode API, to disable EKS Auto Mode you will have to explicity set:
+>
+>```hcl
+>compute_config = {
+>  enabled = false
+> }
+>```
+>
+> If you try to disable by simply removing the `compute_config` block, this will fail to disble EKS Auto Mode. Only after applying with `enabled = false` can you then remove the `compute_config` block from your configurations.
+
 ```hcl
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -43,6 +54,38 @@ module "eks" {
   compute_config = {
     enabled    = true
     node_pools = ["general-purpose"]
+  }
+
+  vpc_id     = "vpc-1234556abcdef"
+  subnet_ids = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
+
+  tags = {
+    Environment = "dev"
+    Terraform   = "true"
+  }
+}
+```
+
+### EKS Auto Mode - Custom Node Pools Only
+
+```hcl
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 21.0"
+
+  name               = "example"
+  kubernetes_version = "1.33"
+
+  # Optional
+  endpoint_public_access = true
+
+  # Optional: Adds the current caller identity as an administrator via cluster access entry
+  enable_cluster_creator_admin_permissions = true
+
+  # Create just the IAM resources for EKS Auto Mode for use with custom node pools
+  create_auto_mode_iam_resources = true
+  compute_config = {
+    enabled = true
   }
 
   vpc_id     = "vpc-1234556abcdef"
@@ -316,7 +359,7 @@ We are grateful to the community for contributing bugfixes and improvements! Ple
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.9 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.15 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | >= 0.9 |
 | <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 4.0 |
 
@@ -324,7 +367,7 @@ We are grateful to the community for contributing bugfixes and improvements! Ple
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.9 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.15 |
 | <a name="provider_time"></a> [time](#provider\_time) | >= 0.9 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | >= 4.0 |
 
@@ -394,6 +437,7 @@ We are grateful to the community for contributing bugfixes and improvements! Ple
 | <a name="input_compute_config"></a> [compute\_config](#input\_compute\_config) | Configuration block for the cluster compute configuration | <pre>object({<br/>    enabled       = optional(bool, false)<br/>    node_pools    = optional(list(string))<br/>    node_role_arn = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_control_plane_subnet_ids"></a> [control\_plane\_subnet\_ids](#input\_control\_plane\_subnet\_ids) | A list of subnet IDs where the EKS cluster control plane (ENIs) will be provisioned. Used for expanding the pool of subnets used by nodes/node groups without replacing the EKS control plane | `list(string)` | `[]` | no |
 | <a name="input_create"></a> [create](#input\_create) | Controls if resources should be created (affects nearly all resources) | `bool` | `true` | no |
+| <a name="input_create_auto_mode_iam_resources"></a> [create\_auto\_mode\_iam\_resources](#input\_create\_auto\_mode\_iam\_resources) | Determines whether to create/attach IAM resources for EKS Auto Mode. Useful for when using only custom node pools and not built-in EKS Auto Mode node pools | `bool` | `false` | no |
 | <a name="input_create_cloudwatch_log_group"></a> [create\_cloudwatch\_log\_group](#input\_create\_cloudwatch\_log\_group) | Determines whether a log group is created by this module for the cluster logs. If not, AWS will automatically create one if logging is enabled | `bool` | `true` | no |
 | <a name="input_create_cni_ipv6_iam_policy"></a> [create\_cni\_ipv6\_iam\_policy](#input\_create\_cni\_ipv6\_iam\_policy) | Determines whether to create an [`AmazonEKS_CNI_IPv6_Policy`](https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-ipv6-policy) | `bool` | `false` | no |
 | <a name="input_create_iam_role"></a> [create\_iam\_role](#input\_create\_iam\_role) | Determines whether an IAM role is created for the cluster | `bool` | `true` | no |

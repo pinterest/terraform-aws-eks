@@ -611,6 +611,12 @@ variable "enable_auto_mode_custom_tags" {
   default     = true
 }
 
+variable "create_auto_mode_iam_resources" {
+  description = "Determines whether to create/attach IAM resources for EKS Auto Mode. Useful for when using only custom node pools and not built-in EKS Auto Mode node pools"
+  type        = bool
+  default     = false
+}
+
 ################################################################################
 # EKS Addons
 ################################################################################
