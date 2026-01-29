@@ -1,7 +1,3 @@
-locals {
-
-}
-
 ################################################################################
 # Cluster
 ################################################################################
@@ -90,6 +86,11 @@ output "cluster_service_cidr" {
 output "cluster_ip_family" {
   description = "The IP family used by the cluster (e.g. `ipv4` or `ipv6`)"
   value       = try(aws_eks_cluster.this[0].kubernetes_network_config[0].ip_family, null)
+}
+
+output "cluster_control_plane_scaling_tier" {
+  description = "The EKS Provisioned Control Plane scaling tier for the cluster"
+  value       = try(aws_eks_cluster.this[0].control_plane_scaling_config[0].tier, null)
 }
 
 ################################################################################
