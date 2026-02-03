@@ -954,6 +954,8 @@ variable "self_managed_node_groups" {
     pre_bootstrap_user_data    = optional(string)
     post_bootstrap_user_data   = optional(string)
     bootstrap_extra_args       = optional(string)
+    kubelet_extra_args         = optional(string)
+    format_mount_nvme_disk     = optional(bool)
     user_data_template_path    = optional(string)
     cloudinit_pre_nodeadm = optional(list(object({
       content      = string
@@ -1288,6 +1290,8 @@ variable "eks_managed_node_groups" {
     pre_bootstrap_user_data    = optional(string)
     post_bootstrap_user_data   = optional(string)
     bootstrap_extra_args       = optional(string)
+    kubelet_extra_args         = optional(string)
+    format_mount_nvme_disk     = optional(bool)
     user_data_template_path    = optional(string)
     cloudinit_pre_nodeadm = optional(list(object({
       content      = string
