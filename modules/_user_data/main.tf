@@ -16,6 +16,8 @@ resource "null_resource" "validate_cluster_service_cidr" {
 locals {
   is_al2    = startswith(var.ami_type, "AL2_")
   is_al2023 = startswith(var.ami_type, "AL2023_")
+  # CUSTOM AMI types use the same nodeadm/cloudinit pipeline as AL2023
+  is_custom = var.ami_type == "CUSTOM"
 
   # Converts AMI type into user data template path
   ami_type_to_user_data_path = {
@@ -74,7 +76,7 @@ locals {
 
   user_data_type_to_rendered = try(coalesce(
     local.is_al2 ? try(data.cloudinit_config.al2_eks_managed_node_group[0].rendered, local.user_data) : null,
-    local.is_al2023 ? try(data.cloudinit_config.al2023_eks_managed_node_group[0].rendered, local.user_data) : null,
+    (local.is_al2023 || local.is_custom) ? try(data.cloudinit_config.al2023_eks_managed_node_group[0].rendered, local.user_data) : null,
     local.user_data,
   ), "")
 }
@@ -118,7 +120,8 @@ locals {
 }
 
 data "cloudinit_config" "al2023_eks_managed_node_group" {
-  count = var.create && local.is_al2023 && length(local.nodeadm_cloudinit) > 0 ? 1 : 0
+  # Also handle CUSTOM AMI types that use nodeadm/cloudinit (e.g. Pinterest Ubuntu 24 custom AMIs)
+  count = var.create && (local.is_al2023 || local.is_custom) && length(local.nodeadm_cloudinit) > 0 ? 1 : 0
 
   base64_encode = true
   gzip          = false
