@@ -321,8 +321,6 @@ module "eks_managed_node_group" {
   pre_bootstrap_user_data    = each.value.pre_bootstrap_user_data
   post_bootstrap_user_data   = each.value.post_bootstrap_user_data
   bootstrap_extra_args       = each.value.bootstrap_extra_args
-  kubelet_extra_args         = each.value.kubelet_extra_args
-  format_mount_nvme_disk     = each.value.format_mount_nvme_disk
   user_data_template_path    = each.value.user_data_template_path
   cloudinit_pre_nodeadm      = each.value.cloudinit_pre_nodeadm
   cloudinit_post_nodeadm     = each.value.cloudinit_post_nodeadm
@@ -469,7 +467,6 @@ module "self_managed_node_group" {
   user_data_template_path    = each.value.user_data_template_path
   cloudinit_pre_nodeadm      = each.value.cloudinit_pre_nodeadm
   cloudinit_post_nodeadm     = each.value.cloudinit_post_nodeadm
-  kubelet_extra_args         = each.value.kubelet_extra_args
 
   # Launch Template
   create_launch_template                 = each.value.create_launch_template

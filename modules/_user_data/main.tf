@@ -67,8 +67,6 @@ locals {
 
       # Optional
       bootstrap_extra_args     = var.bootstrap_extra_args
-      format_mount_nvme_disk   = var.format_mount_nvme_disk
-      kubelet_extra_args       = var.kubelet_extra_args
       pre_bootstrap_user_data  = var.pre_bootstrap_user_data
       post_bootstrap_user_data = var.post_bootstrap_user_data
     }

@@ -87,12 +87,6 @@ variable "bootstrap_extra_args" {
   default     = null
 }
 
-variable "kubelet_extra_args" {
-  description = "Extra arguments to pass to kubelet, like \"--register-with-taints=dedicated=ci-cd:NoSchedule --node-labels=purpose=ci-worker\""
-  type        = string
-  default     = ""
-}
-
 variable "user_data_template_path" {
   description = "Path to a local, custom user data template file to use when rendering user data"
   type        = string
