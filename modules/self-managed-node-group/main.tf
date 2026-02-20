@@ -43,7 +43,7 @@ locals {
 }
 
 data "aws_ssm_parameter" "ami" {
-  count = var.create && var.use_latest_ami_release_version ? 1 : 0
+  count = var.create && var.ami_id != "" ? 1 : 0
 
   region = var.region
 
