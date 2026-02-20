@@ -217,8 +217,7 @@ resource "aws_launch_template" "this" {
   }
 
   iam_instance_profile {
-    arn  = var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn
-    name = (var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn) == null ? var.iam_role_name : null
+    arn = var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn
   }
 
   image_id                             = coalesce(var.ami_id, try(nonsensitive(data.aws_ssm_parameter.ami[0].value), null))
