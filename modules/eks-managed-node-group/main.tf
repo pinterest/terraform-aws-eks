@@ -427,8 +427,7 @@ locals {
 }
 
 data "aws_ssm_parameter" "ami" {
-  # Skip SSM lookup for CUSTOM ami types or when ami_type is null (custom AMI ID specified)
-  count = var.create && var.use_latest_ami_release_version && var.ami_type != null && var.ami_type != "CUSTOM" ? 1 : 0
+  count = var.create && var.use_latest_ami_release_version ? 1 : 0
 
   region = var.region
 
