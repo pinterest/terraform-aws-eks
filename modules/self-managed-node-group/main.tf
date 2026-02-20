@@ -54,10 +54,6 @@ data "aws_ssm_parameter" "ami" {
 # User Data
 ################################################################################
 
-locals {
-  node_labels_string = join(",", [for k, v in var.labels : "${k}=${v}"])
-}
-
 module "user_data" {
   source = "../_user_data"
 

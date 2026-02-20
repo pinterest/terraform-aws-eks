@@ -374,12 +374,6 @@ variable "kubernetes_version" {
   default     = null
 }
 
-variable "labels" {
-  description = "Key-value map of Kubernetes labels. Only labels that are applied with the EKS API are managed by this argument. Other Kubernetes labels applied to the EKS Node Group will not be managed"
-  type        = map(string)
-  default     = null
-}
-
 variable "instance_requirements" {
   description = "The attribute requirements for the type of instance. If present then `instance_type` cannot be present"
   type = object({
