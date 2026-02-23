@@ -23,6 +23,7 @@ locals {
     AL2_x86_64                 = "/aws/service/eks/optimized-ami/${local.ssm_kubernetes_version}/amazon-linux-2/recommended/image_id"
     AL2_x86_64_GPU             = "/aws/service/eks/optimized-ami/${local.ssm_kubernetes_version}/amazon-linux-2-gpu/recommended/image_id"
     AL2_ARM_64                 = "/aws/service/eks/optimized-ami/${local.ssm_kubernetes_version}/amazon-linux-2-arm64/recommended/image_id"
+    CUSTOM                     = "NONE"
     BOTTLEROCKET_ARM_64        = "/aws/service/bottlerocket/aws-k8s-${local.ssm_kubernetes_version}/arm64/latest/image_id"
     BOTTLEROCKET_x86_64        = "/aws/service/bottlerocket/aws-k8s-${local.ssm_kubernetes_version}/x86_64/latest/image_id"
     BOTTLEROCKET_ARM_64_FIPS   = "/aws/service/bottlerocket/aws-k8s-${local.ssm_kubernetes_version}-fips/arm64/latest/image_id"
@@ -42,7 +43,7 @@ locals {
 }
 
 data "aws_ssm_parameter" "ami" {
-  count = var.create ? 1 : 0
+  count = var.create && var.ami_id != "" ? 1 : 0
 
   region = var.region
 
@@ -219,7 +220,7 @@ resource "aws_launch_template" "this" {
     arn = var.create_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : var.iam_instance_profile_arn
   }
 
-  image_id                             = coalesce(var.ami_id, nonsensitive(data.aws_ssm_parameter.ami[0].value))
+  image_id                             = coalesce(var.ami_id, try(nonsensitive(data.aws_ssm_parameter.ami[0].value), null))
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
 
   dynamic "instance_market_options" {
