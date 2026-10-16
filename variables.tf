@@ -73,7 +73,7 @@ variable "compute_config" {
 }
 
 variable "control_plane_scaling_config" {
-  description = "Configuration block for the EKS Provisioned Control Plane scaling tier. Valid values for tier are `standard`, `tier-xl`, `tier-2xl`, and `tier-4xl`"
+  description = "Configuration block for the EKS Provisioned Control Plane scaling tier. Valid values for tier are `standard`, `tier-xl`, `tier-2xl`, `tier-4xl` and `tier-8xl`"
   type = object({
     tier = string
   })
@@ -109,6 +109,44 @@ variable "zonal_shift_config" {
   default = null
 }
 
+variable "kube_scheduler_config" {
+  description = "Configuration block for the cluster scheduler configuration. Valid values for `scoring_strategy.type` are `LeastAllocated` and `MostAllocated`. Resource `weight` must be between `1` and `100`"
+  type = object({
+    node_resources_fit = optional(object({
+      scoring_strategy = optional(object({
+        type = optional(string)
+        resources = optional(list(object({
+          name   = string
+          weight = optional(number)
+        })))
+      }))
+    }))
+  })
+  default = null
+}
+
+variable "kube_controller_manager_config" {
+  description = "Configuration block for customizing the Kubernetes controller manager"
+  type = object({
+    horizontal_pod_autoscaler_controller_config = optional(object({
+      horizontal_pod_autoscaler_sync_period = optional(string)
+    }))
+  })
+  default = null
+}
+
+variable "kube_api_server_config" {
+  description = "Configuration block for customizing the Kubernetes API server"
+  type = object({
+    event_ttl = optional(string)
+    service_node_port_range = optional(object({
+      min_port = optional(number)
+      max_port = optional(number)
+    }))
+  })
+  default = null
+}
+
 variable "additional_security_group_ids" {
   description = "List of additional, externally created security group IDs to attach to the cluster control plane"
   type        = list(string)
@@ -125,6 +163,12 @@ variable "subnet_ids" {
   description = "A list of subnet IDs where the nodes/node groups will be provisioned. If `control_plane_subnet_ids` is not provided, the EKS cluster control plane (ENIs) will be provisioned in these subnets"
   type        = list(string)
   default     = []
+}
+
+variable "control_plane_egress_mode" {
+  description = "Egress mode for the EKS control plane. Valid values are `AWS_MANAGED` and `CUSTOMER_ROUTED`"
+  type        = string
+  default     = null
 }
 
 variable "endpoint_private_access" {
@@ -619,6 +663,13 @@ variable "dataplane_wait_duration" {
   default     = "30s"
 }
 
+# TODO: Make AmazonEKSBlockStoragePolicyV2 the default and remove this variable at the next breaking release.
+variable "enable_auto_mode_block_storage_policy_v2" {
+  description = "Determines whether to use the v2 AmazonEKSBlockStoragePolicy instead of the legacy v1 policy for the EKS Auto Mode cluster IAM role. Defaults to false (uses v1)."
+  type        = bool
+  default     = false
+}
+
 variable "enable_auto_mode_custom_tags" {
   description = "Determines whether to enable permissions for custom tags resources created by EKS Auto Mode"
   type        = bool
@@ -643,6 +694,9 @@ variable "addons" {
     most_recent          = optional(bool, true)
     addon_version        = optional(string)
     configuration_values = optional(string)
+    namespace_config = optional(object({
+      namespace = string
+    }))
     pod_identity_association = optional(list(object({
       role_arn        = string
       service_account = string
@@ -1011,9 +1065,10 @@ variable "self_managed_node_groups" {
       }))
     }))
     cpu_options = optional(object({
-      amd_sev_snp      = optional(string)
-      core_count       = optional(number)
-      threads_per_core = optional(number)
+      amd_sev_snp           = optional(string)
+      core_count            = optional(number)
+      nested_virtualization = optional(string)
+      threads_per_core      = optional(number)
     }))
     credit_specification = optional(object({
       cpu_credits = optional(string)
@@ -1131,6 +1186,9 @@ variable "self_managed_node_groups" {
       security_groups      = optional(list(string))
       subnet_id            = optional(string)
     })))
+    network_performance_options = optional(object({
+      bandwidth_weighting = optional(string)
+    }))
     placement = optional(object({
       affinity                = optional(string)
       availability_zone       = optional(string)
@@ -1278,6 +1336,12 @@ variable "eks_managed_node_groups" {
       max_unavailable_percentage = optional(number)
       update_strategy            = optional(string)
     }))
+    warm_pool_config = optional(object({
+      max_group_prepared_capacity = optional(number)
+      min_size                    = optional(number)
+      pool_state                  = optional(string)
+      reuse_on_scale_in           = optional(bool)
+    }))
     timeouts = optional(object({
       create = optional(string)
       update = optional(string)
@@ -1342,9 +1406,10 @@ variable "eks_managed_node_groups" {
       }))
     }))
     cpu_options = optional(object({
-      amd_sev_snp      = optional(string)
-      core_count       = optional(number)
-      threads_per_core = optional(number)
+      amd_sev_snp           = optional(string)
+      core_count            = optional(number)
+      nested_virtualization = optional(string)
+      threads_per_core      = optional(number)
     }))
     credit_specification = optional(object({
       cpu_credits = optional(string)
@@ -1420,6 +1485,9 @@ variable "eks_managed_node_groups" {
       security_groups      = optional(list(string), [])
       subnet_id            = optional(string)
     })))
+    network_performance_options = optional(object({
+      bandwidth_weighting = optional(string)
+    }))
     maintenance_options = optional(object({
       auto_recovery = optional(string)
     }))

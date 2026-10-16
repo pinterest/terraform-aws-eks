@@ -110,6 +110,12 @@ variable "iam_role_override_assume_policy_documents" {
   default     = []
 }
 
+variable "iam_role_source_arn_condition" {
+  description = "Whether to add an `aws:SourceArn` condition to the Karpenter controller IAM role's trust policy, scoped to this cluster"
+  type        = bool
+  default     = false
+}
+
 variable "iam_role_source_assume_policy_documents" {
   description = "A list of IAM policy documents to use as a source for the assume role policy document for the Karpenter controller IAM role"
   type        = list(string)
@@ -304,6 +310,12 @@ variable "node_iam_role_additional_policies" {
   description = "Additional policies to be added to the IAM role"
   type        = map(string)
   default     = {}
+}
+
+variable "node_iam_role_source_account_condition" {
+  description = "Whether to add an `aws:SourceAccount` condition to the node IAM role's trust policy, scoped to the current account"
+  type        = bool
+  default     = false
 }
 
 variable "node_iam_role_tags" {

@@ -76,11 +76,12 @@ resource "aws_eks_cluster" "this" {
   }
 
   vpc_config {
-    security_group_ids      = compact(distinct(concat(var.additional_security_group_ids, [local.security_group_id])))
-    subnet_ids              = coalescelist(var.control_plane_subnet_ids, var.subnet_ids)
-    endpoint_private_access = var.endpoint_private_access
-    endpoint_public_access  = var.endpoint_public_access
-    public_access_cidrs     = var.endpoint_public_access_cidrs
+    control_plane_egress_mode = var.control_plane_egress_mode
+    security_group_ids        = compact(distinct(concat(var.additional_security_group_ids, [local.security_group_id])))
+    subnet_ids                = coalescelist(var.control_plane_subnet_ids, var.subnet_ids)
+    endpoint_private_access   = var.endpoint_private_access
+    endpoint_public_access    = var.endpoint_public_access
+    public_access_cidrs       = var.endpoint_public_access_cidrs
   }
 
   dynamic "kubernetes_network_config" {
@@ -99,6 +100,66 @@ resource "aws_eks_cluster" "this" {
       ip_family         = var.ip_family
       service_ipv4_cidr = var.service_ipv4_cidr
       service_ipv6_cidr = var.service_ipv6_cidr
+    }
+  }
+
+  dynamic "kube_scheduler_config" {
+    for_each = var.kube_scheduler_config != null ? [var.kube_scheduler_config] : []
+
+    content {
+      dynamic "node_resources_fit" {
+        for_each = kube_scheduler_config.value.node_resources_fit != null ? [kube_scheduler_config.value.node_resources_fit] : []
+
+        content {
+          dynamic "scoring_strategy" {
+            for_each = node_resources_fit.value.scoring_strategy != null ? [node_resources_fit.value.scoring_strategy] : []
+
+            content {
+              type = scoring_strategy.value.type
+
+              dynamic "resource" {
+                for_each = scoring_strategy.value.resources != null ? scoring_strategy.value.resources : []
+
+                content {
+                  name   = resource.value.name
+                  weight = resource.value.weight
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  dynamic "kube_controller_manager_config" {
+    for_each = var.kube_controller_manager_config != null ? [var.kube_controller_manager_config] : []
+
+    content {
+      dynamic "horizontal_pod_autoscaler_controller_config" {
+        for_each = kube_controller_manager_config.value.horizontal_pod_autoscaler_controller_config != null ? [kube_controller_manager_config.value.horizontal_pod_autoscaler_controller_config] : []
+
+        content {
+          horizontal_pod_autoscaler_sync_period = horizontal_pod_autoscaler_controller_config.value.horizontal_pod_autoscaler_sync_period
+        }
+      }
+    }
+  }
+
+  dynamic "kube_api_server_config" {
+    for_each = var.kube_api_server_config != null ? [var.kube_api_server_config] : []
+
+    content {
+      event_ttl = kube_api_server_config.value.event_ttl
+
+      dynamic "service_node_port_range" {
+        for_each = kube_api_server_config.value.service_node_port_range != null ? [kube_api_server_config.value.service_node_port_range] : []
+
+        content {
+          min_port = service_node_port_range.value.min_port
+          max_port = service_node_port_range.value.max_port
+        }
+      }
     }
   }
 
@@ -489,7 +550,7 @@ locals {
   eks_auto_mode_iam_role_policies = { for k, v in {
     AmazonEKSClusterPolicy       = "${local.iam_role_policy_prefix}/AmazonEKSClusterPolicy"
     AmazonEKSComputePolicy       = "${local.iam_role_policy_prefix}/AmazonEKSComputePolicy"
-    AmazonEKSBlockStoragePolicy  = "${local.iam_role_policy_prefix}/AmazonEKSBlockStoragePolicy"
+    AmazonEKSBlockStoragePolicy  = var.enable_auto_mode_block_storage_policy_v2 ? "${local.iam_role_policy_prefix}/AmazonEKSBlockStoragePolicyV2" : "${local.iam_role_policy_prefix}/AmazonEKSBlockStoragePolicy"
     AmazonEKSLoadBalancingPolicy = "${local.iam_role_policy_prefix}/AmazonEKSLoadBalancingPolicy"
     AmazonEKSNetworkingPolicy    = "${local.iam_role_policy_prefix}/AmazonEKSNetworkingPolicy"
   } : k => v if !local.create_outposts_local_cluster && local.create_auto_mode_iam_resources }
@@ -777,6 +838,14 @@ resource "aws_eks_addon" "this" {
   addon_version        = coalesce(each.value.addon_version, data.aws_eks_addon_version.this[each.key].version)
   configuration_values = each.value.configuration_values
 
+  dynamic "namespace_config" {
+    for_each = each.value.namespace_config != null ? [each.value.namespace_config] : []
+
+    content {
+      namespace = namespace_config.value.namespace
+    }
+  }
+
   dynamic "pod_identity_association" {
     for_each = each.value.pod_identity_association != null ? each.value.pod_identity_association : []
 
@@ -821,6 +890,14 @@ resource "aws_eks_addon" "before_compute" {
 
   addon_version        = coalesce(each.value.addon_version, data.aws_eks_addon_version.this[each.key].version)
   configuration_values = each.value.configuration_values
+
+  dynamic "namespace_config" {
+    for_each = each.value.namespace_config != null ? [each.value.namespace_config] : []
+
+    content {
+      namespace = namespace_config.value.namespace
+    }
+  }
 
   dynamic "pod_identity_association" {
     for_each = each.value.pod_identity_association != null ? each.value.pod_identity_association : []

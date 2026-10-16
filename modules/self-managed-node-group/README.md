@@ -41,26 +41,26 @@ module "self_managed_node_group" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.28 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.59 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.28 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.59 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_user_data"></a> [user\_data](#module\_user\_data) | ../_user_data | n/a |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_autoscaling_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group) | resource |
 | [aws_eks_access_entry.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_access_entry) | resource |
 | [aws_iam_instance_profile.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
@@ -84,7 +84,7 @@ module "self_managed_node_group" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_account_id"></a> [account\_id](#input\_account\_id) | The AWS account ID - pass through value to reduce number of GET requests from data sources | `string` | `""` | no |
 | <a name="input_additional_cluster_dns_ips"></a> [additional\_cluster\_dns\_ips](#input\_additional\_cluster\_dns\_ips) | Additional DNS IP addresses to use for the cluster. Only used when `ami_type` = `BOTTLEROCKET_*` | `list(string)` | `null` | no |
 | <a name="input_ami_id"></a> [ami\_id](#input\_ami\_id) | The AMI from which to launch the instance | `string` | `""` | no |
@@ -104,14 +104,14 @@ module "self_managed_node_group" {
 | <a name="input_cluster_primary_security_group_id"></a> [cluster\_primary\_security\_group\_id](#input\_cluster\_primary\_security\_group\_id) | The ID of the EKS cluster primary security group to associate with the instance(s). This is the security group that is automatically created by the EKS service | `string` | `null` | no |
 | <a name="input_cluster_service_cidr"></a> [cluster\_service\_cidr](#input\_cluster\_service\_cidr) | The CIDR block (IPv4 or IPv6) used by the cluster to assign Kubernetes service IP addresses. This is derived from the cluster itself | `string` | `null` | no |
 | <a name="input_context"></a> [context](#input\_context) | Reserved | `string` | `null` | no |
-| <a name="input_cpu_options"></a> [cpu\_options](#input\_cpu\_options) | The CPU options for the instance | <pre>object({<br/>    amd_sev_snp      = optional(string)<br/>    core_count       = optional(number)<br/>    threads_per_core = optional(number)<br/>  })</pre> | `null` | no |
+| <a name="input_cpu_options"></a> [cpu\_options](#input\_cpu\_options) | The CPU options for the instance | <pre>object({<br/>    amd_sev_snp           = optional(string)<br/>    core_count            = optional(number)<br/>    nested_virtualization = optional(string)<br/>    threads_per_core      = optional(number)<br/>  })</pre> | `null` | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether to create self managed node group or not | `bool` | `true` | no |
 | <a name="input_create_access_entry"></a> [create\_access\_entry](#input\_create\_access\_entry) | Determines whether an access entry is created for the IAM role used by the node group | `bool` | `true` | no |
 | <a name="input_create_autoscaling_group"></a> [create\_autoscaling\_group](#input\_create\_autoscaling\_group) | Determines whether to create autoscaling group or not | `bool` | `true` | no |
 | <a name="input_create_iam_instance_profile"></a> [create\_iam\_instance\_profile](#input\_create\_iam\_instance\_profile) | Determines whether an IAM instance profile is created or to use an existing IAM instance profile | `bool` | `true` | no |
 | <a name="input_create_iam_role_policy"></a> [create\_iam\_role\_policy](#input\_create\_iam\_role\_policy) | Determines whether an IAM role policy is created or not | `bool` | `true` | no |
 | <a name="input_create_launch_template"></a> [create\_launch\_template](#input\_create\_launch\_template) | Determines whether to create launch template or not | `bool` | `true` | no |
-| <a name="input_create_placement_group"></a> [create\_placement\_group](#input\_create\_placement\_group) | Determines whether a placement group is created & used by the node group | `bool` | `false` | no |
+| <a name="input_create_placement_group"></a> [create\_placement\_group](#input\_create\_placement\_group) | Determines whether a placement group is created & used by the node group. Defaults to `true` when `enable_efa_support` is `true`, otherwise `false`. Set to `false` to use EFA without a placement group, or with an existing placement group provided through `placement.group_name` | `bool` | `null` | no |
 | <a name="input_create_security_group"></a> [create\_security\_group](#input\_create\_security\_group) | Determines if a security group is created | `bool` | `true` | no |
 | <a name="input_credit_specification"></a> [credit\_specification](#input\_credit\_specification) | Customize the credit specification of the instance | <pre>object({<br/>    cpu_credits = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_default_instance_warmup"></a> [default\_instance\_warmup](#input\_default\_instance\_warmup) | Amount of time, in seconds, until a newly launched instance can contribute to the Amazon CloudWatch metrics. This delay lets an instance finish initializing before Amazon EC2 Auto Scaling aggregates instance metrics, resulting in more reliable usage data | `number` | `null` | no |
@@ -167,6 +167,7 @@ module "self_managed_node_group" {
 | <a name="input_mixed_instances_policy"></a> [mixed\_instances\_policy](#input\_mixed\_instances\_policy) | Configuration block containing settings to define launch targets for Auto Scaling groups | <pre>object({<br/>    instances_distribution = optional(object({<br/>      on_demand_allocation_strategy            = optional(string)<br/>      on_demand_base_capacity                  = optional(number)<br/>      on_demand_percentage_above_base_capacity = optional(number)<br/>      spot_allocation_strategy                 = optional(string)<br/>      spot_instance_pools                      = optional(number)<br/>      spot_max_price                           = optional(string)<br/>    }))<br/>    launch_template = object({<br/>      override = optional(list(object({<br/>        instance_requirements = optional(object({<br/>          accelerator_count = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          accelerator_manufacturers = optional(list(string))<br/>          accelerator_names         = optional(list(string))<br/>          accelerator_total_memory_mib = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          accelerator_types      = optional(list(string))<br/>          allowed_instance_types = optional(list(string))<br/>          bare_metal             = optional(string)<br/>          baseline_ebs_bandwidth_mbps = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          burstable_performance                                   = optional(string)<br/>          cpu_manufacturers                                       = optional(list(string))<br/>          excluded_instance_types                                 = optional(list(string))<br/>          instance_generations                                    = optional(list(string))<br/>          local_storage                                           = optional(string)<br/>          local_storage_types                                     = optional(list(string))<br/>          max_spot_price_as_percentage_of_optimal_on_demand_price = optional(number)<br/>          memory_gib_per_vcpu = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          memory_mib = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          network_bandwidth_gbps = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          network_interface_count = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          on_demand_max_price_percentage_over_lowest_price = optional(number)<br/>          require_hibernate_support                        = optional(bool)<br/>          spot_max_price_percentage_over_lowest_price      = optional(number)<br/>          total_local_storage_gb = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          vcpu_count = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>        }))<br/>        instance_type = optional(string)<br/>        launch_template_specification = optional(object({<br/>          launch_template_id   = optional(string)<br/>          launch_template_name = optional(string)<br/>          version              = optional(string)<br/>        }))<br/>        weighted_capacity = optional(string)<br/>      })))<br/>    })<br/>  })</pre> | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the Self managed Node Group | `string` | `""` | no |
 | <a name="input_network_interfaces"></a> [network\_interfaces](#input\_network\_interfaces) | Customize network interfaces to be attached at instance boot time | <pre>list(object({<br/>    associate_carrier_ip_address = optional(bool)<br/>    associate_public_ip_address  = optional(bool)<br/>    connection_tracking_specification = optional(object({<br/>      tcp_established_timeout = optional(number)<br/>      udp_stream_timeout      = optional(number)<br/>      udp_timeout             = optional(number)<br/>    }))<br/>    delete_on_termination = optional(bool)<br/>    description           = optional(string)<br/>    device_index          = optional(number)<br/>    ena_srd_specification = optional(object({<br/>      ena_srd_enabled = optional(bool)<br/>      ena_srd_udp_specification = optional(object({<br/>        ena_srd_udp_enabled = optional(bool)<br/>      }))<br/>    }))<br/>    interface_type       = optional(string)<br/>    ipv4_address_count   = optional(number)<br/>    ipv4_addresses       = optional(list(string))<br/>    ipv4_prefix_count    = optional(number)<br/>    ipv4_prefixes        = optional(list(string))<br/>    ipv6_address_count   = optional(number)<br/>    ipv6_addresses       = optional(list(string))<br/>    ipv6_prefix_count    = optional(number)<br/>    ipv6_prefixes        = optional(list(string))<br/>    network_card_index   = optional(number)<br/>    network_interface_id = optional(string)<br/>    primary_ipv6         = optional(bool)<br/>    private_ip_address   = optional(string)<br/>    security_groups      = optional(list(string), [])<br/>  }))</pre> | `[]` | no |
+| <a name="input_network_performance_options"></a> [network\_performance\_options](#input\_network\_performance\_options) | The network performance options for the instance | <pre>object({<br/>    bandwidth_weighting = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_partition"></a> [partition](#input\_partition) | The AWS partition - pass through value to reduce number of GET requests from data sources | `string` | `""` | no |
 | <a name="input_placement"></a> [placement](#input\_placement) | The placement of the instance | <pre>object({<br/>    affinity                = optional(string)<br/>    availability_zone       = optional(string)<br/>    group_name              = optional(string)<br/>    host_id                 = optional(string)<br/>    host_resource_group_arn = optional(string)<br/>    partition_number        = optional(number)<br/>    spread_domain           = optional(string)<br/>    tenancy                 = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | The name of the placement group into which you'll launch your instances | `string` | `null` | no |
@@ -197,7 +198,7 @@ module "self_managed_node_group" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_access_entry_arn"></a> [access\_entry\_arn](#output\_access\_entry\_arn) | Amazon Resource Name (ARN) of the Access Entry |
 | <a name="output_autoscaling_group_arn"></a> [autoscaling\_group\_arn](#output\_autoscaling\_group\_arn) | The ARN for this autoscaling group |
 | <a name="output_autoscaling_group_availability_zones"></a> [autoscaling\_group\_availability\_zones](#output\_autoscaling\_group\_availability\_zones) | The availability zones of the autoscaling group |
