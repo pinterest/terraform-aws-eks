@@ -147,9 +147,10 @@ resource "aws_launch_template" "this" {
     for_each = var.cpu_options != null ? [var.cpu_options] : []
 
     content {
-      amd_sev_snp      = cpu_options.value.amd_sev_snp
-      core_count       = cpu_options.value.core_count
-      threads_per_core = cpu_options.value.threads_per_core
+      amd_sev_snp           = cpu_options.value.amd_sev_snp
+      core_count            = cpu_options.value.core_count
+      nested_virtualization = cpu_options.value.nested_virtualization
+      threads_per_core      = cpu_options.value.threads_per_core
     }
   }
 
@@ -322,6 +323,14 @@ resource "aws_launch_template" "this" {
     }
   }
 
+  dynamic "network_performance_options" {
+    for_each = var.network_performance_options != null ? [var.network_performance_options] : []
+
+    content {
+      bandwidth_weighting = network_performance_options.value.bandwidth_weighting
+    }
+  }
+
   dynamic "placement" {
     for_each = var.placement != null || local.create_placement_group ? [var.placement] : []
 
@@ -409,10 +418,12 @@ locals {
     BOTTLEROCKET_x86_64_FIPS   = "/aws/service/bottlerocket/aws-k8s-${local.ssm_kubernetes_version}-fips/x86_64/latest/image_version"
     BOTTLEROCKET_ARM_64_NVIDIA = "/aws/service/bottlerocket/aws-k8s-${local.ssm_kubernetes_version}-nvidia/arm64/latest/image_version"
     BOTTLEROCKET_x86_64_NVIDIA = "/aws/service/bottlerocket/aws-k8s-${local.ssm_kubernetes_version}-nvidia/x86_64/latest/image_version"
-    WINDOWS_CORE_2019_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-EKS_Optimized-${local.ssm_kubernetes_version}"
-    WINDOWS_FULL_2019_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2019-English-Core-EKS_Optimized-${local.ssm_kubernetes_version}"
-    WINDOWS_CORE_2022_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-EKS_Optimized-${local.ssm_kubernetes_version}"
-    WINDOWS_FULL_2022_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2022-English-Core-EKS_Optimized-${local.ssm_kubernetes_version}"
+    WINDOWS_CORE_2019_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2019-English-Core-EKS_Optimized-${local.ssm_kubernetes_version}"
+    WINDOWS_FULL_2019_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-EKS_Optimized-${local.ssm_kubernetes_version}"
+    WINDOWS_CORE_2022_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2022-English-Core-EKS_Optimized-${local.ssm_kubernetes_version}"
+    WINDOWS_FULL_2022_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-EKS_Optimized-${local.ssm_kubernetes_version}"
+    WINDOWS_CORE_2025_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2025-English-Core-EKS_Optimized-${local.ssm_kubernetes_version}"
+    WINDOWS_FULL_2025_x86_64   = "/aws/service/ami-windows-latest/Windows_Server-2025-English-Full-EKS_Optimized-${local.ssm_kubernetes_version}"
     AL2023_x86_64_STANDARD     = "/aws/service/eks/optimized-ami/${local.ssm_kubernetes_version}/amazon-linux-2023/x86_64/standard/recommended/release_version"
     AL2023_ARM_64_STANDARD     = "/aws/service/eks/optimized-ami/${local.ssm_kubernetes_version}/amazon-linux-2023/arm64/standard/recommended/release_version"
     AL2023_x86_64_NEURON       = "/aws/service/eks/optimized-ami/${local.ssm_kubernetes_version}/amazon-linux-2023/x86_64/neuron/recommended/release_version"
@@ -534,6 +545,17 @@ resource "aws_eks_node_group" "this" {
           repair_action             = node_repair_config_overrides.value.repair_action
         }
       }
+    }
+  }
+
+  dynamic "warm_pool_config" {
+    for_each = var.warm_pool_config != null ? [var.warm_pool_config] : []
+
+    content {
+      max_group_prepared_capacity = warm_pool_config.value.max_group_prepared_capacity
+      min_size                    = warm_pool_config.value.min_size
+      pool_state                  = warm_pool_config.value.pool_state
+      reuse_on_scale_in           = warm_pool_config.value.reuse_on_scale_in
     }
   }
 
@@ -696,7 +718,7 @@ resource "aws_iam_role_policy" "this" {
 ################################################################################
 
 locals {
-  create_placement_group = var.create && (local.enable_efa_support || var.create_placement_group)
+  create_placement_group = var.create && coalesce(var.create_placement_group, local.enable_efa_support)
 }
 
 resource "aws_placement_group" "this" {

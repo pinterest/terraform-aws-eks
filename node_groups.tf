@@ -35,6 +35,8 @@ data "aws_iam_policy_document" "cni_ipv6_policy" {
     actions = [
       "ec2:AssignIpv6Addresses",
       "ec2:DescribeInstances",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSubnets",
       "ec2:DescribeTags",
       "ec2:DescribeNetworkInterfaces",
       "ec2:DescribeInstanceTypes"
@@ -310,6 +312,7 @@ module "eks_managed_node_group" {
   remote_access        = each.value.remote_access
   taints               = each.value.taints
   update_config        = each.value.update_config
+  warm_pool_config     = each.value.warm_pool_config
   timeouts             = each.value.timeouts
 
   # User data
@@ -359,6 +362,7 @@ module "eks_managed_node_group" {
   create_placement_group             = each.value.create_placement_group
   placement                          = each.value.placement
   network_interfaces                 = each.value.network_interfaces
+  network_performance_options        = each.value.network_performance_options
   maintenance_options                = each.value.maintenance_options
   private_dns_name_options           = each.value.private_dns_name_options
 
@@ -505,6 +509,7 @@ module "self_managed_node_group" {
   enable_efa_only                    = each.value.enable_efa_only
   efa_indices                        = each.value.efa_indices
   network_interfaces                 = each.value.network_interfaces
+  network_performance_options        = each.value.network_performance_options
   placement                          = each.value.placement
   maintenance_options                = each.value.maintenance_options
   private_dns_name_options           = each.value.private_dns_name_options

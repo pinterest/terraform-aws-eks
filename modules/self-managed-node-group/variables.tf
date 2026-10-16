@@ -224,9 +224,18 @@ variable "capacity_reservation_specification" {
 variable "cpu_options" {
   description = "The CPU options for the instance"
   type = object({
-    amd_sev_snp      = optional(string)
-    core_count       = optional(number)
-    threads_per_core = optional(number)
+    amd_sev_snp           = optional(string)
+    core_count            = optional(number)
+    nested_virtualization = optional(string)
+    threads_per_core      = optional(number)
+  })
+  default = null
+}
+
+variable "network_performance_options" {
+  description = "The network performance options for the instance"
+  type = object({
+    bandwidth_weighting = optional(string)
   })
   default = null
 }
@@ -332,10 +341,9 @@ variable "placement" {
 }
 
 variable "create_placement_group" {
-  description = "Determines whether a placement group is created & used by the node group"
+  description = "Determines whether a placement group is created & used by the node group. Defaults to `true` when `enable_efa_support` is `true`, otherwise `false`. Set to `false` to use EFA without a placement group, or with an existing placement group provided through `placement.group_name`"
   type        = bool
-  default     = false
-  nullable    = false
+  default     = null
 }
 
 variable "private_dns_name_options" {
